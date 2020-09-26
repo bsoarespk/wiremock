@@ -17,15 +17,17 @@ package com.github.tomakehurst.wiremock.matching;
 
 import java.util.regex.Pattern;
 
-import static java.util.regex.Pattern.DOTALL;
-
 public abstract class AbstractRegexPattern extends StringValuePattern {
 
     protected final Pattern pattern;
 
-    protected AbstractRegexPattern(String regex) {
+    protected AbstractRegexPattern(String regex, Boolean caseInsensitive) {
         super(regex);
-        pattern = Pattern.compile(regex, DOTALL);
+        int flags = Pattern.DOTALL;
+        if (caseInsensitive != null && caseInsensitive.booleanValue()) {
+            flags |= Pattern.CASE_INSENSITIVE;
+        }
+        pattern = Pattern.compile(regex, flags);
     }
 
     @Override

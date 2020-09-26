@@ -17,10 +17,14 @@ package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -54,9 +58,9 @@ public class RequestPatternTransformerTest {
             .withHeader("X-CaseSensitive", equalTo("foo"))
             .withHeader("X-CaseInsensitive", equalToIgnoreCase("Baz"));
 
-        Map<String, CaptureHeadersSpec> headers = ImmutableMap.of(
-            "X-CaseSensitive", new CaptureHeadersSpec(false),
-            "X-CaseInsensitive", new CaptureHeadersSpec(true)
+        List<StringValuePattern> headers = ImmutableList.of(
+            (StringValuePattern)new EqualToPattern("X-CaseSensitive", false),
+            (StringValuePattern)new EqualToPattern("X-CaseInsensitive", true)
         );
 
         assertEquals(expected.build(), new RequestPatternTransformer(headers, null).apply(request).build());

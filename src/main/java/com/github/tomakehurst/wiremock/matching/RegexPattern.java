@@ -20,7 +20,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class RegexPattern extends AbstractRegexPattern {
 
     public RegexPattern(@JsonProperty("matches") String regex) {
-        super(regex);
+        super(regex, null);
+    }
+
+    public RegexPattern(@JsonProperty("matches") String regex, @JsonProperty("caseInsensitive") Boolean caseInsensitive) {
+        super(regex, caseInsensitive);
     }
 
     public String getMatches() {

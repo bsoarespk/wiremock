@@ -305,17 +305,19 @@ public class StandaloneAcceptanceTest {
 	@Test
 	public void recordsRequestHeadersWhenSpecifiedOnCommandLine() throws Exception {
 	    WireMock otherServerClient = startOtherServerAndClient();
-		startRunner("--record-mappings", "--match-headers", "Accept");
+		startRunner("--record-mappings", "--match-headers", "Host", "--match-headers-regex", "Accept.*");
 		givenThat(get(urlEqualTo("/please/record-headers"))
 		        .willReturn(aResponse().proxiedFrom("http://localhost:" + otherServer.port())));
 		otherServerClient.register(
 		        get(urlEqualTo("/please/record-headers"))
 		        .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
 		
-		testClient.get("/please/record-headers", withHeader("accept", "application/json"));
+		testClient.get("/please/record-headers", withHeader("accept", "application/json"), withHeader("accept-charset", "utf8"));
 		
 		assertThat(mappingsDirectory, containsAFileContaining("/please/record-headers"));
+		assertThat(contentsOfFirstFileNamedLike("please-record-headers"), containsString("\"Host\" : {"));
 		assertThat(contentsOfFirstFileNamedLike("please-record-headers"), containsString("\"Accept\" : {"));
+		assertThat(contentsOfFirstFileNamedLike("please-record-headers"), containsString("\"Accept-Charset\" : {"));
 	}
 
 	@Test

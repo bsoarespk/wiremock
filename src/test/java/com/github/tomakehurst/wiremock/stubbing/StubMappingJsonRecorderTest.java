@@ -19,8 +19,10 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import com.github.tomakehurst.wiremock.matching.MockMultipart;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.jmock.Expectations;
@@ -66,11 +68,11 @@ public class StubMappingJsonRecorderTest {
 		filesFileSource = context.mock(FileSource.class, "filesFileSource");
         admin = context.mock(Admin.class);
 
-        constructRecordingListener(Collections.<String>emptyList());
+        constructRecordingListener(Collections.<StringValuePattern>emptyList());
 	}
 
-    private void constructRecordingListener(List<String> headersToRecord) {
-        listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, transform(headersToRecord, TO_CASE_INSENSITIVE_KEYS));
+    private void constructRecordingListener(List<StringValuePattern> headersToRecord) {
+        listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, headersToRecord);
         listener.setIdGenerator(fixedIdGenerator("1$2!3"));
     }
 
@@ -255,7 +257,7 @@ public class StubMappingJsonRecorderTest {
             "	}												             \n" +
             "}													               ";
 
-    private static final List<String> MATCHING_REQUEST_HEADERS = new ArrayList<String>(Arrays.asList("Accept"));
+    private static final List<StringValuePattern> MATCHING_REQUEST_HEADERS = new ArrayList<StringValuePattern>(Arrays.asList(new EqualToPattern("Accept", true)));
 
     @Test
     public void includesHeadersInRequestPatternIfHeaderMatchingEnabled() {

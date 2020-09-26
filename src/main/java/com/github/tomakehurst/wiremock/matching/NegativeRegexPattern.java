@@ -15,12 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import java.util.regex.Pattern;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class NegativeRegexPattern extends AbstractRegexPattern {
 
     public NegativeRegexPattern(@JsonProperty("doesNotMatch") String regex) {
-        super(regex);
+        super(regex, null);
+    }
+
+    public NegativeRegexPattern(@JsonProperty("doesNotMatch") String regex, @JsonProperty("caseInsensitive") Boolean caseInsensitive) {
+        super(regex, caseInsensitive);
     }
 
     public String getDoesNotMatch() {

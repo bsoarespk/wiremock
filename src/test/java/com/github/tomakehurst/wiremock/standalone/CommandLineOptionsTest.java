@@ -29,12 +29,17 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.google.common.base.Optional;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+
+import javax.management.StringValueExp;
 
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
@@ -43,6 +48,8 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matchesMu
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.isNotNull;
+import static org.mockito.ArgumentMatchers.matches;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CommandLineOptionsTest {
@@ -67,11 +74,22 @@ public class CommandLineOptionsTest {
 
     @Test
     public void returnsHeaderMatchingEnabledWhenOptionPresent() {
-    	CommandLineOptions options =  new CommandLineOptions("--match-headers", "Accept,Content-Type");
-    	assertThat(options.matchingHeaders(),
-                hasItems(CaseInsensitiveKey.from("Accept"), CaseInsensitiveKey.from("Content-Type")));
-    }
+        CommandLineOptions options =  new CommandLineOptions("--match-headers", "Accept", "--match-headers-regex", "X-.*");
 
+        String[] headers = new String[] {"Accept", "Content-Type", "X-Proto"};
+        boolean[] expectation = new boolean[] {true, false, true};
+
+        for (int i = 0; i < headers.length; i++) {
+            boolean match = false;
+            for (StringValuePattern pattern : options.matchingHeaders()) {
+                if ((match = pattern.match(headers[i]) != null)) {
+                    break;
+                }
+            }
+            assertThat(match, is(expectation[i]));
+        }
+    }
+    
 	@Test
 	public void returnsRecordMappingsFalseWhenOptionNotPresent() {
 		CommandLineOptions options = new CommandLineOptions("");

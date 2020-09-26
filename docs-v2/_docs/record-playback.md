@@ -193,12 +193,15 @@ POST /__admin/recordings/start
     "method" : "GET",
     "allowNonProxied": true
   },
-  "captureHeaders" : {
-    "Accept" : { },
-    "Content-Type" : {
+  "captureHeaders" : [
+    {
+      "matches" : "Accept.*"
+    },
+    {
+      "equalTo" : "Content-Type",
       "caseInsensitive" : true
     }
-  },
+  ],
   "requestBodyPattern" : {
     "matcher" : "equalToJson",
     "ignoreArrayOrder" : false,
@@ -249,12 +252,15 @@ POST /__admin/recordings/snapshot
     "method" : "GET",
     "ids" : [ "40a93c4a-d378-4e07-8321-6158d5dbcb29" ]
   },
-  "captureHeaders" : {
-    "Accept" : { },
-    "Content-Type" : {
+  "captureHeaders" : [
+    {
+      "matches" : "Accept.*"
+    },
+    {
+      "equalTo" : "Content-Type",
       "caseInsensitive" : true
     }
-  },
+  ],
   "requestBodyPattern" : {
     "matcher" : "equalToJson",
     "ignoreArrayOrder" : false,

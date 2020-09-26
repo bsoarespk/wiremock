@@ -27,6 +27,8 @@ import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNet
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.jetty9.QueuedThreadPoolFactory;
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
@@ -35,6 +37,7 @@ import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.MappingsSource;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
@@ -85,7 +88,7 @@ public class WireMockConfiguration implements Options {
     private Notifier notifier = new Slf4jNotifier(false);
     private boolean requestJournalDisabled = false;
     private Optional<Integer> maxRequestJournalEntries = Optional.absent();
-    private List<CaseInsensitiveKey> matchingHeaders = emptyList();
+    private List<StringValuePattern> matchingHeaders = emptyList();
 
     private boolean preserveHostHeader;
     private String proxyHostHeader;
@@ -307,7 +310,12 @@ public class WireMockConfiguration implements Options {
     }
 
     public WireMockConfiguration recordRequestHeadersForMatching(List<String> headers) {
-    	this.matchingHeaders = transform(headers, CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS);
+        this.matchingHeaders = transform(headers, new Function<String, StringValuePattern>() {
+            @Override
+            public StringValuePattern apply(String header) {
+                return new EqualToPattern(header, true);
+            }
+        });
     	return this;
     }
 
@@ -500,7 +508,7 @@ public class WireMockConfiguration implements Options {
     }
 
     @Override
-    public List<CaseInsensitiveKey> matchingHeaders() {
+    public List<StringValuePattern> matchingHeaders() {
     	return matchingHeaders;
     }
 

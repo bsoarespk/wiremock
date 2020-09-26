@@ -36,7 +36,7 @@ latter for the body content.
 Optionally, you can record request headers so that your stub mappings
 will match on those in addition to URL, method and body (if a POST or
 PUT). This is done by adding an extra parameter to the command line e.g.
-`--match-headers="Accept,Content-Type"`
+`--match-headers="Content-Type" --match-headers-regex="Accept.*"`
 
 > **note**
 >

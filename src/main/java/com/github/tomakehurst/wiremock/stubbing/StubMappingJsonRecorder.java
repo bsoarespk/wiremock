@@ -22,8 +22,11 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,15 +37,17 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.google.common.collect.Iterables.filter;
 
+import static com.google.common.collect.FluentIterable.from;
+
 public class StubMappingJsonRecorder implements RequestListener {
 
     private final FileSource mappingsFileSource;
     private final FileSource filesFileSource;
     private final Admin admin;
-    private final List<CaseInsensitiveKey> headersToMatch;
+    private final List<StringValuePattern> headersToMatch;
     private IdGenerator idGenerator;
 
-    public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin, List<CaseInsensitiveKey> headersToMatch) {
+    public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin, List<StringValuePattern> headersToMatch) {
         this.mappingsFileSource = mappingsFileSource;
         this.filesFileSource = filesFileSource;
         this.admin = admin;
@@ -65,9 +70,20 @@ public class StubMappingJsonRecorder implements RequestListener {
     private RequestPattern buildRequestPatternFrom(Request request) {
         RequestPatternBuilder builder = newRequestPattern(request.getMethod(), urlEqualTo(request.getUrl()));
 
-        if (!headersToMatch.isEmpty()) {
-            for (HttpHeader header: request.getHeaders().all()) {
-                if (headersToMatch.contains(header.caseInsensitiveKey())) {
+        if (headersToMatch != null && !headersToMatch.isEmpty()) {
+            List<StringValuePattern> headersToIgnore = new ArrayList<StringValuePattern>();
+            if (request.isMultipart()) {
+                headersToIgnore.add(new EqualToPattern("Content-Type", true));
+            }
+
+            for (final HttpHeader header : request.getHeaders().all()) {
+                Predicate<StringValuePattern> predicate = new Predicate<StringValuePattern>() {
+                    @Override
+                    public boolean apply(StringValuePattern pattern) {
+                        return pattern.match(header.key()).isExactMatch();
+                    }
+                };
+                if (from(headersToMatch).anyMatch(predicate) && !from(headersToIgnore).anyMatch(predicate)) {
                     builder.withHeader(header.key(), equalTo(header.firstValue()));
                 }
             }
@@ -88,14 +104,20 @@ public class StubMappingJsonRecorder implements RequestListener {
     }
 
     private MultipartValuePattern valuePatternForPart(Request.Part part) {
-        MultipartValuePatternBuilder builder = new MultipartValuePatternBuilder().withName(part.getName()).matchingType(MultipartValuePattern.MatchingType.ALL);
+        MultipartValuePatternBuilder builder = new MultipartValuePatternBuilder().withName(part.getName()).matchingType(MultipartValuePattern.MatchingType.ANY);
 
-        if (!headersToMatch.isEmpty()) {
+        if (headersToMatch != null && !headersToMatch.isEmpty()) {
             Collection<HttpHeader> all = part.getHeaders().all();
 
-            for (HttpHeader httpHeader : all) {
-                if (headersToMatch.contains(httpHeader.caseInsensitiveKey())) {
-                    builder.withHeader(httpHeader.key(), equalTo(httpHeader.firstValue()));
+            for (final HttpHeader header : all) {
+                Predicate<StringValuePattern> predicate = new Predicate<StringValuePattern>() {
+                    @Override
+                    public boolean apply(StringValuePattern pattern) {
+                        return pattern.match(header.key()).isExactMatch();
+                    }
+                };
+                if (from(headersToMatch).anyMatch(predicate)) {
+                    builder.withHeader(header.key(), equalTo(header.firstValue()));
                 }
             }
         }

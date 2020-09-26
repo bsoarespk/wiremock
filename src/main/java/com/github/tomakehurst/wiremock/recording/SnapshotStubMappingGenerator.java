@@ -18,12 +18,13 @@ package com.github.tomakehurst.wiremock.recording;
 import com.github.tomakehurst.wiremock.common.SafeNames;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Function;
 
 import java.net.URI;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Transforms ServeEvents to StubMappings using RequestPatternTransformer and LoggedResponseDefinitionTransformer
@@ -40,7 +41,7 @@ public class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMa
         this.responseTransformer = responseTransformer;
     }
 
-    public SnapshotStubMappingGenerator(Map<String, CaptureHeadersSpec> captureHeaders, RequestBodyPatternFactory requestBodyPatternFactory) {
+    public SnapshotStubMappingGenerator(List<StringValuePattern> captureHeaders, RequestBodyPatternFactory requestBodyPatternFactory) {
         this(
             new RequestPatternTransformer(captureHeaders, requestBodyPatternFactory),
             new LoggedResponseDefinitionTransformer()

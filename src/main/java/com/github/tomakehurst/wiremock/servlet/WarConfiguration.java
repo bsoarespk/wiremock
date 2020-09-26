@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
@@ -126,7 +127,7 @@ public class WarConfiguration implements Options {
     }
 
     @Override
-    public List<CaseInsensitiveKey> matchingHeaders() {
+    public List<StringValuePattern> matchingHeaders() {
         return emptyList();
     }
 

@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
@@ -64,7 +65,7 @@ public interface Options {
     boolean requestJournalDisabled();
     Optional<Integer> maxRequestJournalEntries();
     String bindAddress();
-    List<CaseInsensitiveKey> matchingHeaders();
+    List<StringValuePattern> matchingHeaders();
     boolean shouldPreserveHostHeader();
     String proxyHostHeader();
     HttpServerFactory httpServerFactory();

@@ -32,6 +32,9 @@ import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWire
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.jetty9.QueuedThreadPoolFactory;
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import com.github.tomakehurst.wiremock.matching.RegexPattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
@@ -53,6 +56,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
@@ -60,13 +64,13 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
-import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
 public class CommandLineOptions implements Options {
 
     private static final String HELP = "help";
 	private static final String RECORD_MAPPINGS = "record-mappings";
-	private static final String MATCH_HEADERS = "match-headers";
+    private static final String MATCH_HEADERS = "match-headers";
+    private static final String MATCH_HEADERS_REGEX = "match-headers-regex";
 	private static final String PROXY_ALL = "proxy-all";
     private static final String PRESERVE_HOST_HEADER = "preserve-host-header";
     private static final String PROXY_VIA = "proxy-via";
@@ -140,7 +144,8 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(PRESERVE_HOST_HEADER, "Will transfer the original host header from the client to the proxied service");
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
-		optionParser.accepts(MATCH_HEADERS, "Enable request header matching when recording through a proxy").withRequiredArg();
+        optionParser.accepts(MATCH_HEADERS, "Enable request header matching when recording through a proxy").withRequiredArg();
+        optionParser.accepts(MATCH_HEADERS_REGEX, "Enable request header matching based on the given regex when recording through a proxy").withRequiredArg();
 		optionParser.accepts(ROOT_DIR, "Specifies path for storing recordings (parent for " + MAPPINGS_ROOT + " and " + WireMockApp.FILES_ROOT + " folders)").withRequiredArg().defaultsTo(".");
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
@@ -218,14 +223,21 @@ public class CommandLineOptions implements Options {
 	}
 
 	@Override
-	public List<CaseInsensitiveKey> matchingHeaders() {
+	public List<StringValuePattern> matchingHeaders() {
+        ImmutableList.Builder<StringValuePattern> listBuilder = ImmutableList.builder();
+
 		if (optionSet.hasArgument(MATCH_HEADERS)) {
 			String headerSpec = (String) optionSet.valueOf(MATCH_HEADERS);
-            UnmodifiableIterator<String> headerKeys = Iterators.forArray(headerSpec.split(","));
-            return ImmutableList.copyOf(Iterators.transform(headerKeys, TO_CASE_INSENSITIVE_KEYS));
-		}
+            for (String headerKey : headerSpec.split(",")) {
+                listBuilder.add(new EqualToPattern(headerKey, true));
+            }
+        }
+        if (optionSet.hasArgument(MATCH_HEADERS_REGEX)) {
+            String headerRegex = (String) optionSet.valueOf(MATCH_HEADERS_REGEX);
+            listBuilder.add(new RegexPattern(headerRegex, true));
+        }
 
-		return Collections.emptyList();
+		return listBuilder.build();
 	}
 
     @Override

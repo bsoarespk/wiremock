@@ -76,6 +76,8 @@ record-playback.
 
 `--match-headers`: When in record mode, capture request headers with the
 keys specified. See record-playback.
+`--match-headers-regex`: When in record mode, capture request headers
+matching pattern. See record-playback.
 
 `--proxy-all`: Proxy all requests through to another base URL e.g.
 `--proxy-all="http://api.someservice.com"` Typically used in conjunction

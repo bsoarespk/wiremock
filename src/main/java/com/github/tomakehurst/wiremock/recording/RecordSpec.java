@@ -19,9 +19,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Encapsulates options for generating and outputting StubMappings
@@ -35,7 +35,7 @@ public class RecordSpec {
     private final ProxiedServeEventFilters filters;
 
     // Headers from the request to include in the stub mapping, if they match the corresponding matcher
-    private final Map<String, CaptureHeadersSpec> captureHeaders;
+    private final List<StringValuePattern> captureHeaders;
 
     // Factory for the StringValuePattern that will be used to match request bodies
     private final RequestBodyPatternFactory requestBodyPatternFactory;
@@ -62,7 +62,7 @@ public class RecordSpec {
     public RecordSpec(
         @JsonProperty("targetBaseUrl") String targetBaseUrl,
         @JsonProperty("filters") ProxiedServeEventFilters filters,
-        @JsonProperty("captureHeaders") Map<String, CaptureHeadersSpec> captureHeaders,
+        @JsonProperty("captureHeaders") List<StringValuePattern> captureHeaders,
         @JsonProperty("requestBodyPattern") RequestBodyPatternFactory requestBodyPatternFactory,
         @JsonProperty("extractBodyCriteria") ResponseDefinitionBodyMatcher extractBodyCriteria,
         @JsonProperty("outputFormat") SnapshotOutputFormatter outputFormat,
@@ -98,7 +98,7 @@ public class RecordSpec {
 
     public ProxiedServeEventFilters getFilters() { return filters; }
 
-    public Map<String, CaptureHeadersSpec> getCaptureHeaders() { return captureHeaders; }
+    public List<StringValuePattern> getCaptureHeaders() { return captureHeaders; }
 
     public SnapshotOutputFormatter getOutputFormat() { return outputFormat; }
 

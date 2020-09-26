@@ -18,12 +18,12 @@ package com.github.tomakehurst.wiremock.recording;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-import static com.google.common.collect.Maps.newLinkedHashMap;
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 
 public class RecordSpecBuilder {
@@ -31,7 +31,7 @@ public class RecordSpecBuilder {
     private String targetBaseUrl;
     private RequestPatternBuilder filterRequestPatternBuilder;
     private List<UUID> filterIds;
-    private Map<String, CaptureHeadersSpec> headers = newLinkedHashMap();
+    private List<StringValuePattern> headers = newArrayList();
     private RequestBodyPatternFactory requestBodyPatternFactory;
     private long maxTextBodySize = ResponseDefinitionBodyMatcher.DEFAULT_MAX_TEXT_SIZE;
     private long maxBinaryBodySize = ResponseDefinitionBodyMatcher.DEFAULT_MAX_BINARY_SIZE;
@@ -90,12 +90,8 @@ public class RecordSpecBuilder {
         return this;
     }
 
-    public RecordSpecBuilder captureHeader(String key) {
-        return captureHeader(key, null);
-    }
-
-    public RecordSpecBuilder captureHeader(String key, Boolean caseInsensitive) {
-        headers.put(key, new CaptureHeadersSpec(caseInsensitive));
+    public RecordSpecBuilder captureHeader(StringValuePattern pattern) {
+        headers.add(pattern);
         return this;
     }
 
