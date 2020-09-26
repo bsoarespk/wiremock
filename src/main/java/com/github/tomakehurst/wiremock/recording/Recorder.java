@@ -51,10 +51,6 @@ public class Recorder {
             return;
         }
 
-        if (spec.getTargetBaseUrl() == null || spec.getTargetBaseUrl().isEmpty()) {
-            throw new InvalidInputException(Errors.validation("/targetBaseUrl", "targetBaseUrl is required"));
-        }
-
         StubMapping proxyMapping = proxyAllTo(spec.getTargetBaseUrl()).build();
         admin.addStubMapping(proxyMapping);
 

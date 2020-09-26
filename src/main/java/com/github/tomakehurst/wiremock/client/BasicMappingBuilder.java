@@ -219,8 +219,9 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 			throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");
 		}
 		RequestPattern requestPattern = requestPatternBuilder.build();
-		ResponseDefinition response = firstNonNull(responseDefBuilder, aResponse()).build();
+		ResponseDefinition response = responseDefBuilder != null ? responseDefBuilder.build() : ResponseDefinition.notConfigured();
 		StubMapping mapping = new StubMapping(requestPattern, response);
+		
 		mapping.setPriority(priority);
 		mapping.setScenarioName(scenarioName);
 		mapping.setRequiredScenarioState(requiredScenarioState);
@@ -228,9 +229,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 		mapping.setUuid(id);
 		mapping.setName(name);
         mapping.setPersistent(isPersistent);
-
         mapping.setPostServeActions(postServeActions.isEmpty() ? null : postServeActions);
-
         mapping.setMetadata(metadata);
 
 		return mapping;

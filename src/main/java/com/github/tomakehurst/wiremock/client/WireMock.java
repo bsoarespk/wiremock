@@ -442,7 +442,11 @@ public class WireMock {
     }
 
     public static MappingBuilder proxyAllTo(String url) {
-        return any(anyUrl()).willReturn(aResponse().proxiedFrom(url));
+        MappingBuilder builder = any(anyUrl());
+        if (url != null && !url.isEmpty()) {
+            builder = builder.willReturn(aResponse().proxiedFrom(url));
+        }
+        return builder;
     }
 
     public static MappingBuilder get(String url) {
