@@ -49,6 +49,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             .put("matchesJsonPath", MatchesJsonPathPattern.class)
             .put("equalToXml", EqualToXmlPattern.class)
             .put("matchesXPath", MatchesXPathPattern.class)
+            .put("equalToUrlEncodedForm", EqualToUrlEncodedFormPattern.class)
             .put("contains", ContainsPattern.class)
             .put("matches", RegexPattern.class)
             .put("doesNotMatch", NegativeRegexPattern.class)
@@ -79,6 +80,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             return deserialiseMatchesXPathPattern(rootNode);
         } else if (patternClass.equals(EqualToPattern.class)) {
             return deserializeEqualTo(rootNode);
+        } else if (patternClass.equals(EqualToUrlEncodedFormPattern.class)) {
+            return deserializeEqualToUrlEncodedForm(rootNode);
         }
 
         Constructor<? extends StringValuePattern> constructor = findConstructor(patternClass);
@@ -194,6 +197,15 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         StringValuePattern valuePattern = buildStringValuePattern(outerPatternNode);
 
         return new MatchesXPathPattern(expression, namespaces, valuePattern);
+    }
+
+    private EqualToUrlEncodedFormPattern deserializeEqualToUrlEncodedForm(JsonNode rootNode) throws JsonMappingException {
+        if (!rootNode.has("equalToUrlEncodedForm")) {
+            throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
+        }
+
+        JsonNode operand = rootNode.findValue("equalToUrlEncodedForm");
+        return new EqualToUrlEncodedFormPattern(operand.textValue());
     }
 
     private static Map<String, String> toNamespaceMap(JsonNode namespacesNode) {

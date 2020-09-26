@@ -127,6 +127,11 @@ public class RecordSpecBuilder {
         return this;
     }
 
+    public RecordSpecBuilder matchRequestBodyWithEqualToUrlEncodedForm() {
+        this.requestBodyPatternFactory = new RequestBodyEqualToUrlEncodedFormPatternFactory();
+        return this;
+    }
+
     public RecordSpecBuilder allowNonProxied(boolean allowNonProxied) {
         this.allowNonProxied = allowNonProxied;
         return this;

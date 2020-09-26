@@ -68,6 +68,8 @@ public class RequestBodyAutomaticPatternFactory implements RequestBodyPatternFac
                 return new EqualToJsonPattern(request.getBodyAsString(), ignoreArrayOrder, ignoreExtraElements);
             } else if (mimeType.contains("xml")) {
                 return new EqualToXmlPattern(request.getBodyAsString());
+            } else if (mimeType.contains("form-urlencoded")) {
+                return new EqualToUrlEncodedFormPattern(request.getBodyAsString());
             } else if (mimeType.equals("multipart/form-data")) {
                 // TODO: Need to add a matcher that can handle multipart data properly. For now, just always match
                 return new AnythingPattern();

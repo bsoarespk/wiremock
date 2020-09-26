@@ -232,6 +232,10 @@ public class WireMock {
         return AbsentPattern.ABSENT;
     }
 
+    public static StringValuePattern equalToUrlEncodedForm(String value) {
+        return new EqualToUrlEncodedFormPattern(value);
+    }
+
     public void saveMappings() {
         admin.saveMappings();
     }

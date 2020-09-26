@@ -130,6 +130,8 @@ public class StubMappingJsonRecorder implements RequestListener {
             builder.withBody(equalToJson(part.getBody().asString(), true, true));
         } else if (contentType.firstValue().contains("xml")) {
             builder.withBody(equalToXml(part.getBody().asString()));
+        } else if (contentType.firstValue().contains("form-urlencoded")) {
+            builder.withBody(equalToUrlEncodedForm(part.getBody().asString()));
         } else {
             builder.withBody(binaryEqualTo(part.getBody().asBytes()));
         }
@@ -144,6 +146,8 @@ public class StubMappingJsonRecorder implements RequestListener {
                 return equalToJson(request.getBodyAsString(), true, true);
             } else if (contentType.contains("xml")) {
                 return equalToXml(request.getBodyAsString());
+            } else if (contentType.contains("form-urlencoded")) {
+                return equalToUrlEncodedForm(request.getBodyAsString());
             }
         }
 
