@@ -22,11 +22,8 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,7 +33,7 @@ import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.google.common.collect.Iterables.filter;
-
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.FluentIterable.from;
 
 public class StubMappingJsonRecorder implements RequestListener {
@@ -71,7 +68,7 @@ public class StubMappingJsonRecorder implements RequestListener {
         RequestPatternBuilder builder = newRequestPattern(request.getMethod(), urlEqualTo(request.getUrl()));
 
         if (headersToMatch != null && !headersToMatch.isEmpty()) {
-            List<StringValuePattern> headersToIgnore = new ArrayList<StringValuePattern>();
+            List<StringValuePattern> headersToIgnore = newArrayList();
             if (request.isMultipart()) {
                 headersToIgnore.add(new EqualToPattern("Content-Type", true));
             }

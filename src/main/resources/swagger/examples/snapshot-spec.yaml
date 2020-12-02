@@ -4,8 +4,9 @@ filters:
   ids:
   - 40a93c4a-d378-4e07-8321-6158d5dbcb29
 captureHeaders:
-  Accept: {}
-  Content-Type:
+  - matches: Accept.*
+    caseInsensitive: true
+  - equalTo: Content-Type
     caseInsensitive: true
 requestBodyPattern:
   matcher: equalToJson

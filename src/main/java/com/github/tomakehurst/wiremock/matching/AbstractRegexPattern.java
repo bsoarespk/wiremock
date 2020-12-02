@@ -30,6 +30,10 @@ public abstract class AbstractRegexPattern extends StringValuePattern {
         pattern = Pattern.compile(regex, flags);
     }
 
+    public Boolean getCaseInsensitive() {
+        return (pattern.flags() & Pattern.CASE_INSENSITIVE) == Pattern.CASE_INSENSITIVE;
+    }
+
     @Override
     public MatchResult match(String value) {
         return MatchResult.of(

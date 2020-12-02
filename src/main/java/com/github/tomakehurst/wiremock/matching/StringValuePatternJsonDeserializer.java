@@ -21,17 +21,21 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+
 import org.xmlunit.diff.ComparisonType;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,6 +59,9 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             .put("doesNotMatch", NegativeRegexPattern.class)
             .put("anything", AnythingPattern.class)
             .put("absent", AbsentPattern.class)
+            .put("matchesAll", MatchesAllStringValuePattern.class)
+            .put("matchesAny", MatchesAnyStringValuePattern.class)
+            .put("not", NegativeStringValuePattern.class)
             .build();
 
     @Override
@@ -82,6 +89,12 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             return deserializeEqualTo(rootNode);
         } else if (patternClass.equals(EqualToUrlEncodedFormPattern.class)) {
             return deserializeEqualToUrlEncodedForm(rootNode);
+        } else if (patternClass.equals(MatchesAllStringValuePattern.class)) {
+            return deserializeMatchesAll(rootNode);
+        } else if (patternClass.equals(MatchesAnyStringValuePattern.class)) {
+            return deserializeMatchesAny(rootNode);
+        } else if (patternClass.equals(NegativeStringValuePattern.class)) {
+            return deserializeNot(rootNode);
         }
 
         Constructor<? extends StringValuePattern> constructor = findConstructor(patternClass);
@@ -206,6 +219,55 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
         JsonNode operand = rootNode.findValue("equalToUrlEncodedForm");
         return new EqualToUrlEncodedFormPattern(operand.textValue());
+    }
+
+    private MatchesAllStringValuePattern deserializeMatchesAll(JsonNode rootNode) throws JsonMappingException {
+        if (!rootNode.has("matchesAll")) {
+            throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
+        }
+
+        JsonNode operand = rootNode.findValue("matchesAll");
+        if (!operand.isArray()) {
+            throw new JsonMappingException(rootNode.toString() + " is not an array");
+        }
+
+        List<StringValuePattern> patterns = Lists.newArrayList();
+        for (JsonNode item : (ArrayNode)operand) {
+            patterns.add(buildStringValuePattern(item));
+        }
+
+        return new MatchesAllStringValuePattern(patterns);
+    }
+
+    private MatchesAnyStringValuePattern deserializeMatchesAny(JsonNode rootNode) throws JsonMappingException {
+        if (!rootNode.has("matchesAny")) {
+            throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
+        }
+
+        JsonNode operand = rootNode.findValue("matchesAny");
+        if (!operand.isArray()) {
+            throw new JsonMappingException(rootNode.toString() + " is not an array");
+        }
+
+        List<StringValuePattern> patterns = Lists.newArrayList();
+        for (JsonNode item : (ArrayNode)operand) {
+            patterns.add(buildStringValuePattern(item));
+        }
+
+        return new MatchesAnyStringValuePattern(patterns);
+    }
+
+    private NegativeStringValuePattern deserializeNot(JsonNode rootNode) throws JsonMappingException {
+        if (!rootNode.has("not")) {
+            throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
+        }
+
+        JsonNode operand = rootNode.findValue("not");
+        if (!operand.isObject()) {
+            throw new JsonMappingException(rootNode.toString() + " is not an object");
+        }
+
+        return new NegativeStringValuePattern(buildStringValuePattern(operand));
     }
 
     private static Map<String, String> toNamespaceMap(JsonNode namespacesNode) {

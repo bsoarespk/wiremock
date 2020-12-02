@@ -195,7 +195,18 @@ POST /__admin/recordings/start
   },
   "captureHeaders" : [
     {
-      "matches" : "Accept.*"
+      "matchesAll" : [
+        {
+          "matches" : "Accept.*",
+          "caseInsensitive" : true
+        },
+        {
+          "not" : {
+            "equalTo" : "Accept-Language",
+            "caseInsensitive" : true
+          }
+        }
+      ]
     },
     {
       "equalTo" : "Content-Type",
@@ -254,7 +265,18 @@ POST /__admin/recordings/snapshot
   },
   "captureHeaders" : [
     {
-      "matches" : "Accept.*"
+      "matchesAll" : [
+        {
+          "matches" : "Accept.*",
+          "caseInsensitive" : true
+        },
+        {
+          "not" : {
+            "equalTo" : "Accept-Language",
+            "caseInsensitive" : true
+          }
+        }
+      ]
     },
     {
       "equalTo" : "Content-Type",
@@ -298,8 +320,7 @@ You may want your recorded stub mappings to match on one or more specific reques
 For instance if you're intending to record from an API that supports both XML and JSON responses via content negotiation,
 then you will need to capture the value of the `Accept` header sent in each request.
 
-The `captureHeaders` attribute allows you to specify a map of header names to match parameter objects. Currently the only parameter
-available is `caseInsensitive`, which defaults to false if absent. 
+The `captureHeaders` attribute allows you to specify an array of patterns to match header names against. If a header name matches one or more of these patterns, it will be included in the stub recording.
 
  
 ### Body files extraction size criteria

@@ -37,6 +37,7 @@ import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -217,7 +218,7 @@ public class WireMock {
     }
 
     public static StringValuePattern containing(String value) {
-        return new ContainsPattern(value);
+        return new ContainsPattern(value, null);
     }
 
     public static StringValuePattern matching(String regex) {
@@ -234,6 +235,14 @@ public class WireMock {
 
     public static StringValuePattern equalToUrlEncodedForm(String value) {
         return new EqualToUrlEncodedFormPattern(value);
+    }
+
+    public static StringValuePattern matchingAll(List<StringValuePattern> patterns) {
+        return new MatchesAllStringValuePattern(patterns);
+    }
+
+    public static StringValuePattern matchingAll(StringValuePattern... patterns) {
+        return new MatchesAllStringValuePattern(Arrays.asList(patterns));
     }
 
     public void saveMappings() {

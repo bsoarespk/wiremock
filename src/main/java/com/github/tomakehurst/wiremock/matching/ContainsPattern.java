@@ -19,16 +19,28 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ContainsPattern extends StringValuePattern {
 
-    public ContainsPattern(@JsonProperty("contains") String expectedValue) {
+    private Boolean caseInsensitive;
+
+    public ContainsPattern(@JsonProperty("contains") String expectedValue, @JsonProperty("caseInsensitive") Boolean caseInsensitive) {
         super(expectedValue);
+        this.caseInsensitive = caseInsensitive;
     }
 
     public String getContains() {
         return expectedValue;
     }
 
+    public Boolean getCaseInsensitive() {
+        return caseInsensitive;
+    }
+
     @Override
     public MatchResult match(String value) {
-        return MatchResult.of(value != null && value.contains(expectedValue));
+        if (value == null) {
+            return MatchResult.noMatch();
+        }
+        String expectedValue = caseInsensitive ? this.expectedValue.toLowerCase() : this.expectedValue;
+        String actualValue = caseInsensitive ? value.toLowerCase() : value;
+        return MatchResult.of(actualValue.contains(expectedValue));
     }
 }

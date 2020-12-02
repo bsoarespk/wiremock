@@ -3,8 +3,9 @@ filters:
   urlPathPattern: "/api/.*"
   method: GET
 captureHeaders:
-  Accept: {}
-  Content-Type:
+  - matches: Accept.*
+    caseInsensitive: true
+  - equalTo: Content-Type
     caseInsensitive: true
 requestBodyPattern:
   matcher: equalToJson
