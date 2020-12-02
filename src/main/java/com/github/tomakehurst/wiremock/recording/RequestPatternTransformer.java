@@ -15,7 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
+import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.google.common.base.Function;
@@ -23,6 +25,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.google.common.collect.FluentIterable.from;
@@ -35,10 +38,12 @@ import static com.google.common.collect.Lists.newArrayList;
 public class RequestPatternTransformer implements Function<Request, RequestPatternBuilder> {
 
     private final List<StringValuePattern> headersToMatch;
+    private final List<StringValuePattern> queryParametersToMatch;
     private final RequestBodyPatternFactory bodyPatternFactory;
 
-    public RequestPatternTransformer(List<StringValuePattern> headersToMatch, RequestBodyPatternFactory bodyPatternFactory) {
+    public RequestPatternTransformer(List<StringValuePattern> headersToMatch, List<StringValuePattern> queryParametersToMatch, RequestBodyPatternFactory bodyPatternFactory) {
         this.headersToMatch = headersToMatch;
+        this.queryParametersToMatch = queryParametersToMatch;
         this.bodyPatternFactory = bodyPatternFactory;
     }
 
@@ -47,8 +52,14 @@ public class RequestPatternTransformer implements Function<Request, RequestPatte
      */
     @Override
     public RequestPatternBuilder apply(final Request request) {
-        final RequestPatternBuilder builder = new RequestPatternBuilder(request.getMethod(),
-                urlEqualTo(request.getUrl()));
+        UrlPattern urlPattern;
+        if (queryParametersToMatch == null) { // not capturing query parameters, so match the full url
+            urlPattern = urlEqualTo(request.getUrl());
+        }
+        else { // capturing query parameters, so match only the url's path
+            urlPattern = urlPathEqualTo(Urls.getPath(request.getUrl()));
+        }
+        final RequestPatternBuilder builder = new RequestPatternBuilder(request.getMethod(), urlPattern);
 
         if (headersToMatch != null && !headersToMatch.isEmpty()) {
             List<StringValuePattern> headersToIgnore = newArrayList();
@@ -65,6 +76,21 @@ public class RequestPatternTransformer implements Function<Request, RequestPatte
                 };
                 if (from(headersToMatch).anyMatch(predicate) && !from(headersToIgnore).anyMatch(predicate)) {
                     builder.withHeader(header.key(), equalTo(header.firstValue()));
+                }
+            }
+        }
+
+        if (queryParametersToMatch != null && !queryParametersToMatch.isEmpty()) {
+            Map<String, QueryParameter> queryParams = Urls.splitQueryFromUrl(request.getUrl());
+            for (final QueryParameter param : queryParams.values()) {
+                Predicate<StringValuePattern> predicate = new Predicate<StringValuePattern>() {
+                    @Override
+                    public boolean apply(StringValuePattern pattern) {
+                        return pattern.match(param.key()).isExactMatch();
+                    }
+                };
+                if (from(queryParametersToMatch).anyMatch(predicate)) {
+                    builder.withQueryParam(param.key(), equalTo(param.firstValue()));
                 }
             }
         }

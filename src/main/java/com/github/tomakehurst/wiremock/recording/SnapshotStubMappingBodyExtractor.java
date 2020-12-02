@@ -21,6 +21,8 @@ import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 public class SnapshotStubMappingBodyExtractor {
     private final FileSource fileSource;
 
@@ -38,7 +40,7 @@ public class SnapshotStubMappingBodyExtractor {
         byte[] body = stubMapping.getResponse().getByteBody();
         HttpHeaders responseHeaders = stubMapping.getResponse().getHeaders();
         String extension = ContentTypes.determineFileExtension(
-            stubMapping.getRequest().getUrl(),
+            firstNonNull(stubMapping.getRequest().getUrl(), stubMapping.getRequest().getUrlPath()),
             responseHeaders != null ? responseHeaders.getContentTypeHeader() : ContentTypeHeader.absent(),
             body);
 

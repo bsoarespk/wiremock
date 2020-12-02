@@ -31,6 +31,7 @@ public class RecordSpecBuilder {
     private String targetBaseUrl;
     private RequestPatternBuilder filterRequestPatternBuilder;
     private List<UUID> filterIds;
+    private List<StringValuePattern> queryParameters = newArrayList();
     private List<StringValuePattern> headers = newArrayList();
     private RequestBodyPatternFactory requestBodyPatternFactory;
     private long maxTextBodySize = ResponseDefinitionBodyMatcher.DEFAULT_MAX_TEXT_SIZE;
@@ -95,6 +96,11 @@ public class RecordSpecBuilder {
         return this;
     }
 
+    public RecordSpecBuilder captureQueryParameter(StringValuePattern pattern) {
+        queryParameters.add(pattern);
+        return this;
+    }
+
     public RecordSpecBuilder chooseBodyMatchTypeAutomatically() {
         return chooseBodyMatchTypeAutomatically(null, null, null);
     }
@@ -151,6 +157,7 @@ public class RecordSpecBuilder {
             targetBaseUrl,
             filters,
             headers.isEmpty() ? null : headers,
+            queryParameters.isEmpty() ? null : queryParameters,
             requestBodyPatternFactory,
             responseDefinitionBodyMatcher,
             SnapshotOutputFormatter.FULL,

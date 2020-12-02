@@ -34,8 +34,11 @@ public class RecordSpec {
     // Whitelist requests to generate StubMappings for
     private final ProxiedServeEventFilters filters;
 
-    // Headers from the request to include in the stub mapping, if they match the corresponding matcher
+    // Headers from the request to include in the stub mapping, if they match one of the corresponding matcher
     private final List<StringValuePattern> captureHeaders;
+
+    // Query parameters from the request to include in the stub mapping, if they match one of the corresponding matcher
+    private final List<StringValuePattern> captureQueryParameters;
 
     // Factory for the StringValuePattern that will be used to match request bodies
     private final RequestBodyPatternFactory requestBodyPatternFactory;
@@ -63,6 +66,7 @@ public class RecordSpec {
         @JsonProperty("targetBaseUrl") String targetBaseUrl,
         @JsonProperty("filters") ProxiedServeEventFilters filters,
         @JsonProperty("captureHeaders") List<StringValuePattern> captureHeaders,
+        @JsonProperty("captureQueryParameters") List<StringValuePattern> captureQueryParameters,
         @JsonProperty("requestBodyPattern") RequestBodyPatternFactory requestBodyPatternFactory,
         @JsonProperty("extractBodyCriteria") ResponseDefinitionBodyMatcher extractBodyCriteria,
         @JsonProperty("outputFormat") SnapshotOutputFormatter outputFormat,
@@ -73,6 +77,7 @@ public class RecordSpec {
         this.targetBaseUrl = targetBaseUrl;
         this.filters = filters == null ? ProxiedServeEventFilters.ALLOW_ALL : filters;
         this.captureHeaders = captureHeaders;
+        this.captureQueryParameters = captureQueryParameters;
         this.requestBodyPatternFactory = requestBodyPatternFactory == null ? RequestBodyAutomaticPatternFactory.DEFAULTS : requestBodyPatternFactory;
         this.extractBodyCriteria = extractBodyCriteria;
         this.outputFormat = outputFormat == null ? SnapshotOutputFormatter.FULL : outputFormat;
@@ -83,13 +88,13 @@ public class RecordSpec {
     }
 
     private RecordSpec() {
-        this(null, null, null, null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null, null, null, null);
     }
 
     public static final RecordSpec DEFAULTS = new RecordSpec();
 
     public static RecordSpec forBaseUrl(String targetBaseUrl) {
-        return new RecordSpec(targetBaseUrl, null, null, null, null, null, null, true, null, null);
+        return new RecordSpec(targetBaseUrl, null, null, null, null, null, null, null, true, null, null);
     }
 
     public String getTargetBaseUrl() {
@@ -99,6 +104,8 @@ public class RecordSpec {
     public ProxiedServeEventFilters getFilters() { return filters; }
 
     public List<StringValuePattern> getCaptureHeaders() { return captureHeaders; }
+
+    public List<StringValuePattern> getCaptureQueryParameters() { return captureQueryParameters; }
 
     public SnapshotOutputFormatter getOutputFormat() { return outputFormat; }
 

@@ -41,9 +41,9 @@ public class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMa
         this.responseTransformer = responseTransformer;
     }
 
-    public SnapshotStubMappingGenerator(List<StringValuePattern> captureHeaders, RequestBodyPatternFactory requestBodyPatternFactory) {
+    public SnapshotStubMappingGenerator(List<StringValuePattern> captureHeaders, List<StringValuePattern> captureQueryParameters, RequestBodyPatternFactory requestBodyPatternFactory) {
         this(
-            new RequestPatternTransformer(captureHeaders, requestBodyPatternFactory),
+            new RequestPatternTransformer(captureHeaders, captureQueryParameters, requestBodyPatternFactory),
             new LoggedResponseDefinitionTransformer()
         );
     }

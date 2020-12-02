@@ -101,7 +101,7 @@ public class Recorder {
         final List<StubMapping> stubMappings = serveEventsToStubMappings(
             Lists.reverse(serveEvents),
             recordSpec.getFilters(),
-            new SnapshotStubMappingGenerator(recordSpec.getCaptureHeaders(), recordSpec.getRequestBodyPatternFactory()),
+            new SnapshotStubMappingGenerator(recordSpec.getCaptureHeaders(), recordSpec.getCaptureQueryParameters(), recordSpec.getRequestBodyPatternFactory()),
             getStubMappingPostProcessor(admin.getOptions(), recordSpec)
         );
 

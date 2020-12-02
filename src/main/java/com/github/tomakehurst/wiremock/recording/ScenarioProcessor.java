@@ -28,6 +28,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 public class ScenarioProcessor {
 
     public void putRepeatedRequestsInScenarios(List<StubMapping> stubMappings) {
@@ -54,7 +56,7 @@ public class ScenarioProcessor {
 
     private void putStubsInScenario(int scenarioIndex, List<StubMapping> stubMappings) {
         StubMapping firstScenario = stubMappings.get(0);
-        String scenarioName = "scenario-" + Integer.toString(scenarioIndex) + "-" + Urls.urlToPathParts(URI.create(firstScenario.getRequest().getUrl()));
+        String scenarioName = "scenario-" + Integer.toString(scenarioIndex) + "-" + Urls.urlToPathParts(URI.create(firstNonNull(firstScenario.getRequest().getUrl(), firstScenario.getRequest().getUrlPath())));
 
         int count = 1;
         for (StubMapping stub: stubMappings) {
