@@ -40,6 +40,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -66,7 +67,7 @@ public class WireMockApp implements StubServer, Admin {
     private final Container container;
     private final MappingsSaver mappingsSaver;
     private final NearMissCalculator nearMissCalculator;
-    private final Recorder recorder;
+    private final Map<UUID, Recorder> recorders;
     private final List<GlobalSettingsListener> globalSettingsListeners;
 
     private Options options;
@@ -96,7 +97,7 @@ public class WireMockApp implements StubServer, Admin {
             ImmutableList.copyOf(options.extensionsOfType(StubLifecycleListener.class).values())
         );
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
-        recorder = new Recorder(this);
+        recorders = new HashMap<>();
         globalSettingsListeners = ImmutableList.copyOf(options.extensionsOfType(GlobalSettingsListener.class).values());
 
         this.container = container;
@@ -123,7 +124,7 @@ public class WireMockApp implements StubServer, Admin {
         stubMappings = new InMemoryStubMappings(scenarios, requestMatchers, transformers, rootFileSource, Collections.<StubLifecycleListener>emptyList());
         this.container = container;
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
-        recorder = new Recorder(this);
+        recorders = new HashMap<>();
         globalSettingsListeners = Collections.emptyList();
         loadDefaultMappings();
     }
@@ -443,32 +444,44 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     public SnapshotRecordResult snapshotRecord(RecordSpec recordSpec) {
-        return recorder.takeSnapshot(getServeEvents().getServeEvents(), recordSpec);
+        return new Recorder(this).takeSnapshot(getServeEvents().getServeEvents(), recordSpec);
     }
 
     @Override
-    public void startRecording(String targetBaseUrl) {
-        recorder.startRecording(RecordSpec.forBaseUrl(targetBaseUrl));
+    public UUID startRecording(String targetBaseUrl) {
+        return startRecording(RecordSpec.forBaseUrl(targetBaseUrl));
     }
 
     @Override
-    public void startRecording(RecordSpec recordSpec) {
+    public UUID startRecording(RecordSpec recordSpec) {
+        UUID id = UUID.randomUUID();
+        Recorder recorder = new Recorder(this);
         recorder.startRecording(recordSpec);
+        recorders.put(id, recorder);
+        return id;
     }
 
     @Override
-    public void startRecording(RecordSpecBuilder recordSpec) {
-        recorder.startRecording(recordSpec.build());
+    public UUID startRecording(RecordSpecBuilder recordSpec) {
+        return startRecording(recordSpec.build());
     }
 
     @Override
-    public SnapshotRecordResult stopRecording() {
+    public SnapshotRecordResult stopRecording(UUID id) {
+        Recorder recorder = recorders.remove(id);
+        if (recorder == null) {
+            throw new RecordingNotFoundException(id);
+        }
         return recorder.stopRecording();
     }
 
     @Override
-    public RecordingStatusResult getRecordingStatus() {
-        return new RecordingStatusResult(recorder.getStatus().name());
+    public RecordingStatusResult getRecordingStatus(UUID id) {
+        Recorder recorder = recorders.get(id);
+        if (recorder == null) {
+            throw new RecordingNotFoundException(id);
+        }
+        return new RecordingStatusResult(id, recorder.getStatus());
     }
 
     @Override

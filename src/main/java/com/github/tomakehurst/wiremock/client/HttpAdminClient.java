@@ -328,34 +328,29 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public void startRecording(String targetBaseUrl) {
-        startRecording(RecordSpec.forBaseUrl(targetBaseUrl));
+    public UUID startRecording(String targetBaseUrl) {
+        return startRecording(RecordSpec.forBaseUrl(targetBaseUrl));
     }
 
     @Override
-    public void startRecording(RecordSpec recordSpec) {
-        postJsonAssertOkAndReturnBody(
-            urlFor(StartRecordingTask.class),
-            Json.write(recordSpec));
+    public UUID startRecording(RecordSpec recordSpec) {
+        RecordingStatusResult result = executeRequest(adminRoutes.requestSpecForTask(StartRecordingTask.class), recordSpec, RecordingStatusResult.class);
+        return result == null ? null : result.getId();
     }
 
     @Override
-    public void startRecording(RecordSpecBuilder recordSpec) {
-        startRecording(recordSpec.build());
+    public UUID startRecording(RecordSpecBuilder recordSpec) {
+        return startRecording(recordSpec.build());
     }
 
     @Override
-    public SnapshotRecordResult stopRecording() {
-        String body = postJsonAssertOkAndReturnBody(
-            urlFor(StopRecordingTask.class),
-            "");
-
-        return Json.read(body, SnapshotRecordResult.class);
+    public SnapshotRecordResult stopRecording(UUID id) {
+        return executeRequest(adminRoutes.requestSpecForTask(StopRecordingTask.class), PathParams.single("id", id), null, SnapshotRecordResult.class);
     }
 
     @Override
-    public RecordingStatusResult getRecordingStatus() {
-        return executeRequest(adminRoutes.requestSpecForTask(GetRecordingStatusTask.class), RecordingStatusResult.class);
+    public RecordingStatusResult getRecordingStatus(UUID id) {
+        return executeRequest(adminRoutes.requestSpecForTask(GetRecordingStatusTask.class), PathParams.single("id", id), null, RecordingStatusResult.class);
     }
 
     @Override

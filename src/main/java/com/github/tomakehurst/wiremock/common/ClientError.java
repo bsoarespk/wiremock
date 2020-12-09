@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.github.tomakehurst.wiremock.recording.NotRecordingException;
+import com.github.tomakehurst.wiremock.recording.RecordingNotFoundException;
 
 public class ClientError extends RuntimeException {
 
@@ -38,6 +39,8 @@ public class ClientError extends RuntimeException {
                 return new InvalidInputException(errors);
             case 30:
                 return new NotRecordingException();
+            case 31:
+                return new RecordingNotFoundException(errors);
             case 50:
                 return new NotPermittedException(errors);
             default:

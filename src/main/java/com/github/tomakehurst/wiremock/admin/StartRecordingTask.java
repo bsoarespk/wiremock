@@ -25,14 +25,18 @@ import com.github.tomakehurst.wiremock.recording.RecordSpec;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.jsonResponse;
 
+import java.util.UUID;
+
 public class StartRecordingTask implements AdminTask {
 
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
         RecordSpec recordSpec = Json.read(request.getBodyAsString(), RecordSpec.class);
         try {
-            admin.startRecording(recordSpec);
-            return ResponseDefinition.okEmptyJson();
+            UUID id = admin.startRecording(recordSpec);
+            return ResponseDefinition.okForJson(
+                admin.getRecordingStatus(id)
+            );
         } catch (InvalidInputException e) {
             return jsonResponse(e.getErrors(), 422);
         }

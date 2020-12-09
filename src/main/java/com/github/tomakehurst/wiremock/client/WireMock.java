@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
@@ -42,9 +43,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static com.google.common.net.HttpHeaders.LOCATION;
@@ -454,10 +457,11 @@ public class WireMock {
         return okForContentType("text/xml", body);
     }
 
-    public static MappingBuilder proxyAllTo(String url) {
-        MappingBuilder builder = any(anyUrl());
-        if (url != null && !url.isEmpty()) {
-            builder = builder.willReturn(aResponse().proxiedFrom(url));
+    public static MappingBuilder proxyForRecording(RecordSpec spec) {
+        MappingBuilder builder = new BasicMappingBuilder(spec.getFilters().getFilters());
+        String targetBaseUrl = spec.getTargetBaseUrl();
+        if (targetBaseUrl != null && !targetBaseUrl.isEmpty()) {
+            builder = builder.willReturn(aResponse().proxiedFrom(targetBaseUrl));
         }
         return builder;
     }
@@ -776,36 +780,36 @@ public class WireMock {
         return new MultipartValuePatternBuilder(name);
     }
 
-    public static void startRecording(String targetBaseUrl) {
-        defaultInstance.get().startStubRecording(targetBaseUrl);
+    public static UUID startRecording(String targetBaseUrl) {
+        return defaultInstance.get().startStubRecording(targetBaseUrl);
     }
 
-    public static void startRecording(RecordSpecBuilder spec) {
-        defaultInstance.get().startStubRecording(spec);
+    public static UUID startRecording(RecordSpecBuilder spec) {
+        return defaultInstance.get().startStubRecording(spec);
     }
 
-    public void startStubRecording(String targetBaseUrl) {
-        admin.startRecording(targetBaseUrl);
+    public UUID startStubRecording(String targetBaseUrl) {
+        return admin.startRecording(targetBaseUrl);
     }
 
-    public void startStubRecording(RecordSpecBuilder spec) {
-        admin.startRecording(spec.build());
+    public UUID startStubRecording(RecordSpecBuilder spec) {
+        return admin.startRecording(spec.build());
     }
 
-    public static SnapshotRecordResult stopRecording() {
-        return defaultInstance.get().stopStubRecording();
+    public static SnapshotRecordResult stopRecording(UUID id) {
+        return defaultInstance.get().stopStubRecording(id);
     }
 
-    public SnapshotRecordResult stopStubRecording() {
-        return admin.stopRecording();
+    public SnapshotRecordResult stopStubRecording(UUID id) {
+        return admin.stopRecording(id);
     }
 
-    public static RecordingStatusResult getRecordingStatus() {
-        return defaultInstance.get().getStubRecordingStatus();
+    public static RecordingStatusResult getRecordingStatus(UUID id) {
+        return defaultInstance.get().getStubRecordingStatus(id);
     }
 
-    public RecordingStatusResult getStubRecordingStatus() {
-        return admin.getRecordingStatus();
+    public RecordingStatusResult getStubRecordingStatus(UUID id) {
+        return admin.getRecordingStatus(id);
     }
 
     public static RecordSpecBuilder recordSpec() {

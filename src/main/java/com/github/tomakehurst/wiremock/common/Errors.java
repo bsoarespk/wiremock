@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.common;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
+import java.util.UUID;
 
 import static java.util.Collections.singletonList;
 
@@ -47,6 +48,10 @@ public class Errors {
 
     public static Errors notRecording() {
         return single(30, "Not currently recording.");
+    }
+
+    public static Errors recordingNotFound(UUID id) {
+        return single(31, "Recording not found: " + id);
     }
 
     public static Errors validation(String pointer, String message) {

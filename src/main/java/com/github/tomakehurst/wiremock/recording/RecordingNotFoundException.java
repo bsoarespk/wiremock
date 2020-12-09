@@ -17,29 +17,16 @@ package com.github.tomakehurst.wiremock.recording;
 
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.ClientError;
+import com.github.tomakehurst.wiremock.common.Errors;
 
-public class RecordingStatusResult {
+public class RecordingNotFoundException extends ClientError {
 
-    private final UUID id;
-    private final RecordingStatus status;
-
-    @JsonCreator
-    public RecordingStatusResult(@JsonProperty("id") String id, @JsonProperty("status") String status) {
-        this(UUID.fromString(id), RecordingStatus.valueOf(status));
+    public RecordingNotFoundException(Errors errors) {
+        super(errors);
     }
 
-    public RecordingStatusResult(UUID id, RecordingStatus status) {
-        this.id = id;
-        this.status = status;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public RecordingStatus getStatus() {
-        return status;
+    public RecordingNotFoundException(UUID id) {
+        super(Errors.recordingNotFound(id));
     }
 }

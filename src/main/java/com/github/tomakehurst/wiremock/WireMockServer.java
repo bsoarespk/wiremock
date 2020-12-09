@@ -427,28 +427,28 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public void startRecording(String targetBaseUrl) {
-        wireMockApp.startRecording(targetBaseUrl);
+    public UUID startRecording(String targetBaseUrl) {
+        return wireMockApp.startRecording(targetBaseUrl);
     }
 
     @Override
-    public void startRecording(RecordSpec spec) {
-        wireMockApp.startRecording(spec);
+    public UUID startRecording(RecordSpec spec) {
+        return wireMockApp.startRecording(spec);
     }
 
     @Override
-    public void startRecording(RecordSpecBuilder recordSpec) {
-        wireMockApp.startRecording(recordSpec);
+    public UUID startRecording(RecordSpecBuilder recordSpec) {
+        return wireMockApp.startRecording(recordSpec);
     }
 
     @Override
-    public SnapshotRecordResult stopRecording() {
-        return wireMockApp.stopRecording();
+    public SnapshotRecordResult stopRecording(UUID id) {
+        return wireMockApp.stopRecording(id);
     }
 
     @Override
-    public RecordingStatusResult getRecordingStatus() {
-        return wireMockApp.getRecordingStatus();
+    public RecordingStatusResult getRecordingStatus(UUID id) {
+        return wireMockApp.getRecordingStatus(id);
     }
 
     @Override

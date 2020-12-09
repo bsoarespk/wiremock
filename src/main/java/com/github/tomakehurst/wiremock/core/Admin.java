@@ -68,11 +68,11 @@ public interface Admin {
     SnapshotRecordResult snapshotRecord(RecordSpec spec);
     SnapshotRecordResult snapshotRecord(RecordSpecBuilder spec);
 
-    void startRecording(String targetBaseUrl);
-    void startRecording(RecordSpec spec);
-    void startRecording(RecordSpecBuilder recordSpec);
-    SnapshotRecordResult stopRecording();
-    RecordingStatusResult getRecordingStatus();
+    UUID startRecording(String targetBaseUrl);
+    UUID startRecording(RecordSpec spec);
+    UUID startRecording(RecordSpecBuilder recordSpec);
+    SnapshotRecordResult stopRecording(UUID id);
+    RecordingStatusResult getRecordingStatus(UUID id);
 
     Options getOptions();
 

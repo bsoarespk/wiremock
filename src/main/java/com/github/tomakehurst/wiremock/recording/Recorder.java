@@ -30,7 +30,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.proxyAllTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.proxyForRecording;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.google.common.collect.FluentIterable.from;
@@ -51,7 +51,11 @@ public class Recorder {
             return;
         }
 
-        StubMapping proxyMapping = proxyAllTo(spec.getTargetBaseUrl()).build();
+        if (!admin.getOptions().browserProxySettings().enabled() && (spec.getTargetBaseUrl() == null || spec.getTargetBaseUrl().isEmpty())) {
+            throw new InvalidInputException(Errors.validation("/targetBaseUrl", "targetBaseUrl is required when browser proxying isn't enabled"));
+        }
+        
+        StubMapping proxyMapping = proxyForRecording(spec).build();
         admin.addStubMapping(proxyMapping);
 
         List<ServeEvent> serveEvents = admin.getServeEvents().getServeEvents();
