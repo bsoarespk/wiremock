@@ -62,6 +62,7 @@ import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAUL
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 
@@ -183,7 +184,7 @@ public class CommandLineOptions implements Options {
 		captureHelpTextIfRequested(optionParser);
 
         fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
-        mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
+        mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT), fileSource.child(FILES_ROOT));
 
         actualHttpPort = null;
 	}

@@ -94,7 +94,7 @@ public class WarConfiguration implements Options {
 
     @Override
     public MappingsLoader mappingsLoader() {
-        return new JsonFileMappingsSource(filesRoot().child("mappings"));
+        return new JsonFileMappingsSource(filesRoot().child("mappings"), filesRoot().child("__files"));
     }
 
     @Override

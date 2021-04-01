@@ -48,6 +48,7 @@ import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.google.common.collect.Lists.transform;
@@ -117,7 +118,7 @@ public class WireMockConfiguration implements Options {
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
-            mappingsSource = new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT));
+            mappingsSource = new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT), filesRoot.child(FILES_ROOT));
         }
 
         return mappingsSource;

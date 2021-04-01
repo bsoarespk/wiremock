@@ -36,10 +36,12 @@ import static com.google.common.collect.Iterables.filter;
 public class JsonFileMappingsSource implements MappingsSource {
 
 	private final FileSource mappingsFileSource;
+	private final FileSource bodyFileSource;
 	private final Map<UUID, StubMappingFileMetadata> fileNameMap;
 
-	public JsonFileMappingsSource(FileSource mappingsFileSource) {
+	public JsonFileMappingsSource(FileSource mappingsFileSource, FileSource bodyFileSource) {
 		this.mappingsFileSource = mappingsFileSource;
+		this.bodyFileSource = bodyFileSource;
 		fileNameMap = new HashMap<>();
 	}
 
@@ -56,7 +58,8 @@ public class JsonFileMappingsSource implements MappingsSource {
 	public void save(StubMapping stubMapping) {
 		StubMappingFileMetadata fileMetadata = fileNameMap.get(stubMapping.getId());
 		if (fileMetadata == null) {
-			fileMetadata = new StubMappingFileMetadata(SafeNames.makeSafeFileName(stubMapping), false);
+			String bodyFileName = stubMapping.getResponse() == null ? null : stubMapping.getResponse().getBodyFileName();
+			fileMetadata = new StubMappingFileMetadata(SafeNames.makeSafeFileName(stubMapping), bodyFileName, false);
 		}
 
 		if (fileMetadata.multi) {
@@ -77,6 +80,9 @@ public class JsonFileMappingsSource implements MappingsSource {
 		}
 
 		mappingsFileSource.deleteFile(fileMetadata.path);
+		if (fileMetadata.bodyPath != null) {
+			bodyFileSource.deleteFile(fileMetadata.bodyPath);
+		}
         fileNameMap.remove(stubMapping.getId());
     }
 
@@ -88,6 +94,9 @@ public class JsonFileMappingsSource implements MappingsSource {
 
 		for (StubMappingFileMetadata fileMetadata: fileNameMap.values()) {
 			mappingsFileSource.deleteFile(fileMetadata.path);
+			if (fileMetadata.bodyPath != null) {
+				bodyFileSource.deleteFile(fileMetadata.bodyPath);
+			}
 		}
 		fileNameMap.clear();
 	}
@@ -114,7 +123,8 @@ public class JsonFileMappingsSource implements MappingsSource {
 				for (StubMapping mapping: stubCollection.getMappingOrMappings()) {
 					mapping.setDirty(false);
 					stubMappings.addMapping(mapping);
-					StubMappingFileMetadata fileMetadata = new StubMappingFileMetadata(mappingFile.getPath(), stubCollection.isMulti());
+					String bodyFileName = mapping.getResponse() == null ? null : mapping.getResponse().getBodyFileName();
+					StubMappingFileMetadata fileMetadata = new StubMappingFileMetadata(mappingFile.getPath(), bodyFileName, stubCollection.isMulti());
 					fileNameMap.put(mapping.getId(), fileMetadata);
 				}
 			} catch (JsonException e) {
@@ -125,10 +135,12 @@ public class JsonFileMappingsSource implements MappingsSource {
 
 	private static class StubMappingFileMetadata {
 		final String path;
+		final String bodyPath;
 		final boolean multi;
 
-		public StubMappingFileMetadata(String path, boolean multi) {
+		public StubMappingFileMetadata(String path, String bodyPath, boolean multi) {
 			this.path = path;
+			this.bodyPath = bodyPath;
 			this.multi = multi;
 		}
 	}
