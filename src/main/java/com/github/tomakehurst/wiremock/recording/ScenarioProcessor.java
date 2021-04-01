@@ -25,12 +25,15 @@ import com.google.common.collect.*;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 public class ScenarioProcessor {
+
+    private Map<String, Integer> nextScenarioIndex = new HashMap<>();
 
     public void putRepeatedRequestsInScenarios(List<StubMapping> stubMappings) {
         ImmutableListMultimap<RequestPattern, StubMapping> stubsGroupedByRequest = Multimaps.index(stubMappings, new Function<StubMapping, RequestPattern>() {
@@ -47,16 +50,20 @@ public class ScenarioProcessor {
             }
         });
 
-        int scenarioIndex = 0;
         for (Map.Entry<RequestPattern, Collection<StubMapping>> entry: groupsWithMoreThanOneStub.entrySet()) {
-            scenarioIndex++;
-            putStubsInScenario(scenarioIndex, ImmutableList.copyOf(entry.getValue()));
+            putStubsInScenario(ImmutableList.copyOf(entry.getValue()));
         }
     }
 
-    private void putStubsInScenario(int scenarioIndex, List<StubMapping> stubMappings) {
+    private void putStubsInScenario(List<StubMapping> stubMappings) {
         StubMapping firstScenario = stubMappings.get(0);
-        String scenarioName = "scenario-" + Integer.toString(scenarioIndex) + "-" + Urls.urlToPathParts(URI.create(firstNonNull(firstScenario.getRequest().getUrl(), firstScenario.getRequest().getUrlPath())));
+        String urlPathParts = Urls.urlToPathParts(URI.create(firstNonNull(firstScenario.getRequest().getUrl(), firstScenario.getRequest().getUrlPath())));
+        Integer index = this.nextScenarioIndex.get(urlPathParts);
+        if (index == null) {
+            index = 1;
+        }
+        this.nextScenarioIndex.put(urlPathParts, index + 1);
+        String scenarioName = "scenario-" + index + "-" + urlPathParts;
 
         int count = 1;
         for (StubMapping stub: stubMappings) {

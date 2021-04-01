@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
@@ -35,17 +36,20 @@ public class SnapshotStubMappingPostProcessor {
     private final SnapshotStubMappingTransformerRunner transformerRunner;
     private final ResponseDefinitionBodyMatcher bodyExtractMatcher;
     private final SnapshotStubMappingBodyExtractor bodyExtractor;
+    private final ScenarioProcessor scenarioProcessor;
 
     public SnapshotStubMappingPostProcessor(
         boolean shouldRecordRepeatsAsScenarios,
         SnapshotStubMappingTransformerRunner transformerRunner,
         ResponseDefinitionBodyMatcher bodyExtractMatcher,
-        SnapshotStubMappingBodyExtractor bodyExtractor
+        SnapshotStubMappingBodyExtractor bodyExtractor,
+        ScenarioProcessor scenarioProcessor
     ) {
         this.shouldRecordRepeatsAsScenarios = shouldRecordRepeatsAsScenarios;
         this.transformerRunner = transformerRunner;
         this.bodyExtractMatcher = bodyExtractMatcher;
         this.bodyExtractor = bodyExtractor;
+        this.scenarioProcessor = scenarioProcessor == null ? new ScenarioProcessor() : scenarioProcessor;
     }
 
     public List<StubMapping> process(Iterable<StubMapping> stubMappings) {
@@ -71,7 +75,7 @@ public class SnapshotStubMappingPostProcessor {
         }
 
         if (shouldRecordRepeatsAsScenarios) {
-            new ScenarioProcessor().putRepeatedRequestsInScenarios(processedStubMappings);
+            scenarioProcessor.putRepeatedRequestsInScenarios(processedStubMappings);
         }
 
         // Run any stub mapping transformer extensions

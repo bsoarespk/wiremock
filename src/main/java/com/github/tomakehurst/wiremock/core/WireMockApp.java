@@ -59,6 +59,7 @@ public class WireMockApp implements StubServer, Admin {
     public static final String MAPPINGS_ROOT = "mappings";
 
     private final Scenarios scenarios;
+    private final ScenarioProcessor scenarioProcessor;
     private final StubMappings stubMappings;
     private final RequestJournal requestJournal;
     private final GlobalSettingsHolder globalSettingsHolder;
@@ -89,6 +90,7 @@ public class WireMockApp implements StubServer, Admin {
         Map<String, RequestMatcherExtension> customMatchers = options.extensionsOfType(RequestMatcherExtension.class);
 
         scenarios = new Scenarios();
+        scenarioProcessor = new ScenarioProcessor();
         stubMappings = new InMemoryStubMappings(
             scenarios,
             customMatchers,
@@ -121,6 +123,7 @@ public class WireMockApp implements StubServer, Admin {
         globalSettingsHolder = new GlobalSettingsHolder();
         requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
         scenarios = new Scenarios();
+        scenarioProcessor = new ScenarioProcessor();
         stubMappings = new InMemoryStubMappings(scenarios, requestMatchers, transformers, rootFileSource, Collections.<StubLifecycleListener>emptyList());
         this.container = container;
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
@@ -444,7 +447,7 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     public SnapshotRecordResult snapshotRecord(RecordSpec recordSpec) {
-        return new Recorder(this).takeSnapshot(getServeEvents().getServeEvents(), recordSpec);
+        return new Recorder(this, scenarioProcessor).takeSnapshot(getServeEvents().getServeEvents(), recordSpec);
     }
 
     @Override
@@ -455,7 +458,7 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public UUID startRecording(RecordSpec recordSpec) {
         UUID id = UUID.randomUUID();
-        Recorder recorder = new Recorder(this);
+        Recorder recorder = new Recorder(this, scenarioProcessor);
         recorder.startRecording(recordSpec);
         recorders.put(id, recorder);
         return id;

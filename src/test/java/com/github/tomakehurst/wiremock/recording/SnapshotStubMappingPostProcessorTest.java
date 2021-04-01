@@ -38,7 +38,7 @@ public class SnapshotStubMappingPostProcessorTest {
     @Test
     public void processFiltersRepeatedRequestsWhenNotRecordingScenarios() {
         final List<StubMapping> actual = new SnapshotStubMappingPostProcessor(
-            false, noopTransformerRunner(), null, null
+            false, noopTransformerRunner(), null, null, null
         ).process(TEST_STUB_MAPPINGS);
 
         assertThat(actual, hasSize(2));
@@ -61,7 +61,7 @@ public class SnapshotStubMappingPostProcessorTest {
         };
 
         final List<StubMapping> actual = new SnapshotStubMappingPostProcessor(
-            false, transformerRunner, null, null
+            false, transformerRunner, null, null, null
         ).process(TEST_STUB_MAPPINGS);
 
         assertThat(actual, hasSize(2));
@@ -92,7 +92,8 @@ public class SnapshotStubMappingPostProcessorTest {
             false,
             noopTransformerRunner(),
             bodyMatcher,
-            bodyExtractor
+            bodyExtractor,
+            null
         ).process(TEST_STUB_MAPPINGS);
 
         assertThat(actual, hasSize(2));

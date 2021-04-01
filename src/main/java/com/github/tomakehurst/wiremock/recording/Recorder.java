@@ -39,10 +39,12 @@ import static com.google.common.collect.Iterables.indexOf;
 public class Recorder {
 
     private final Admin admin;
+    private final ScenarioProcessor scenarioProcessor;
     private State state;
 
-    public Recorder(Admin admin) {
+    public Recorder(Admin admin, ScenarioProcessor scenarioProcessor) {
         this.admin = admin;
+        this.scenarioProcessor = scenarioProcessor;
         state = State.initial();
     }
 
@@ -145,7 +147,8 @@ public class Recorder {
             recordSpec.shouldRecordRepeatsAsScenarios(),
             transformerRunner,
             recordSpec.getExtractBodyCriteria(),
-            new SnapshotStubMappingBodyExtractor(filesRoot)
+            new SnapshotStubMappingBodyExtractor(filesRoot),
+            scenarioProcessor
         );
     }
 
