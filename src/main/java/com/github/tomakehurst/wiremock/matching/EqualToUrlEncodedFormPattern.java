@@ -3,6 +3,7 @@ package com.github.tomakehurst.wiremock.matching;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,7 +23,7 @@ public class EqualToUrlEncodedFormPattern extends StringValuePattern {
 
     public EqualToUrlEncodedFormPattern(@JsonProperty("equalToUrlEncodedForm") String urlEncodedForm) {
         super(urlEncodedForm);
-        this.charset = null;
+        this.charset = StandardCharsets.ISO_8859_1.name();
         this.expected = parse(urlEncodedForm);
         this.urlEncodedForm = normalizedString(expected);
     }
@@ -52,6 +53,8 @@ public class EqualToUrlEncodedFormPattern extends StringValuePattern {
 
     private Map<String, String> parse(String urlEncodedForm) {
         Map<String, String> form = new HashMap<String, String>();
+	if (urlEncodedForm == null) // can happen if request method was HEAD
+	    return form;
         for (String keyValuePair : urlEncodedForm.split("&")) {
             int separator = keyValuePair.indexOf("=");
             if (separator == -1 || separator == keyValuePair.length() - 1) {
