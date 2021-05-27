@@ -33,6 +33,7 @@ import org.xmlunit.diff.ComparisonType;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -217,8 +218,19 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
         }
 
-        JsonNode operand = rootNode.findValue("equalToUrlEncodedForm");
-        return new EqualToUrlEncodedFormPattern(operand.textValue());
+        JsonNode formOperand = rootNode.findValue("equalToUrlEncodedForm");
+        JsonNode paramOperand = rootNode.findValue("captureFormParameters");
+        List<StringValuePattern> captureFormParameters;
+        if (paramOperand == null)
+            captureFormParameters = null;
+        else {
+            if (!paramOperand.isArray())
+                throw new JsonMappingException(paramOperand + " is not an array");
+            captureFormParameters = new ArrayList<>(paramOperand.size());
+            for (JsonNode element : paramOperand)
+                captureFormParameters.add(buildStringValuePattern(element));
+        }
+        return new EqualToUrlEncodedFormPattern(formOperand.textValue(), captureFormParameters);
     }
 
     private MatchesAllStringValuePattern deserializeMatchesAll(JsonNode rootNode) throws JsonMappingException {

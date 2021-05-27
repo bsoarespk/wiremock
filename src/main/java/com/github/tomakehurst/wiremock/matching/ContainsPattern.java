@@ -26,6 +26,10 @@ public class ContainsPattern extends StringValuePattern {
         this.caseInsensitive = caseInsensitive;
     }
 
+    public ContainsPattern(@JsonProperty("contains") String expectedValue) {
+        this(expectedValue, false);
+    }
+
     public String getContains() {
         return expectedValue;
     }

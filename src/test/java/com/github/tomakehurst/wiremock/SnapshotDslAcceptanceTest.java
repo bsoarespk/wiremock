@@ -272,7 +272,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         client.postWithBody("/some-json", "<foo/>", "application/xml", "utf-8");
         client.postWithBody("/some-json", "foo", "application/text", "utf-8");
 
-        List<StubMapping> mappings = snapshotRecord(recordSpec().chooseBodyMatchTypeAutomatically(false, false, true));
+        List<StubMapping> mappings = snapshotRecord(recordSpec().chooseBodyMatchTypeAutomatically(false, false, true, null));
 
         EqualToJsonPattern jsonBodyPattern = (EqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
         assertThat(jsonBodyPattern.getEqualToJson(), is("{}"));

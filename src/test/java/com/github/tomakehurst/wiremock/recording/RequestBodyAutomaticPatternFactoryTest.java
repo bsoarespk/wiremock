@@ -46,7 +46,7 @@ public class RequestBodyAutomaticPatternFactoryTest {
     @Test
     public void forRequestWithTextBodyRespectsCaseInsensitiveOption() {
         Request request = mockRequest().body(JSON_TEST_STRING);
-        RequestBodyAutomaticPatternFactory patternFactory = new RequestBodyAutomaticPatternFactory(false, false, true);
+        RequestBodyAutomaticPatternFactory patternFactory = new RequestBodyAutomaticPatternFactory(false, false, true, null);
         EqualToPattern pattern = (EqualToPattern) patternFactory.forRequest(request);
 
         assertThat(pattern.getEqualTo(), is(JSON_TEST_STRING));
@@ -67,7 +67,7 @@ public class RequestBodyAutomaticPatternFactoryTest {
 
     @Test
     public void forRequestWithJsonBodyRespectsOptions() {
-        RequestBodyAutomaticPatternFactory patternFactory = new RequestBodyAutomaticPatternFactory(false, false, false);
+        RequestBodyAutomaticPatternFactory patternFactory = new RequestBodyAutomaticPatternFactory(false, false, false, null);
         Request request = mockRequest()
             .header("Content-Type", "application/json")
             .body(JSON_TEST_STRING);

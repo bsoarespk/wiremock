@@ -18,7 +18,16 @@ package com.github.tomakehurst.wiremock.recording;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.matching.AnythingPattern;
+import com.github.tomakehurst.wiremock.matching.BinaryEqualToPattern;
+import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToUrlEncodedFormPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.ContentTypes.determineIsTextFromMimeType;
 
@@ -27,19 +36,22 @@ public class RequestBodyAutomaticPatternFactory implements RequestBodyPatternFac
     private final Boolean caseInsensitive;
     private final Boolean ignoreArrayOrder;
     private final Boolean ignoreExtraElements;
+    private final List<StringValuePattern> captureFormParameters;
 
     @JsonCreator
     public RequestBodyAutomaticPatternFactory(
         @JsonProperty("ignoreArrayOrder") Boolean ignoreArrayOrder,
         @JsonProperty("ignoreExtraElements") Boolean ignoreExtraElements,
-        @JsonProperty("caseInsensitive") Boolean caseInsensitive) {
+        @JsonProperty("caseInsensitive") Boolean caseInsensitive,
+        @JsonProperty("captureFormParameters") List<StringValuePattern> captureFormParameters) {
         this.ignoreArrayOrder = ignoreArrayOrder == null ? true : ignoreArrayOrder;
         this.ignoreExtraElements = ignoreExtraElements == null ? true : ignoreExtraElements;
         this.caseInsensitive = caseInsensitive == null ? false : caseInsensitive;
+        this.captureFormParameters = captureFormParameters;
     }
 
     private RequestBodyAutomaticPatternFactory() {
-        this(null, null, null);
+        this(null, null, null, null);
     }
 
     public static final RequestBodyAutomaticPatternFactory DEFAULTS = new RequestBodyAutomaticPatternFactory();
@@ -69,7 +81,7 @@ public class RequestBodyAutomaticPatternFactory implements RequestBodyPatternFac
             } else if (mimeType.contains("xml")) {
                 return new EqualToXmlPattern(request.getBodyAsString());
             } else if (mimeType.contains("form-urlencoded")) {
-                return new EqualToUrlEncodedFormPattern(request.getBodyAsString());
+                return new EqualToUrlEncodedFormPattern(request.getBodyAsString(), captureFormParameters);
             } else if (mimeType.equals("multipart/form-data")) {
                 // TODO: Need to add a matcher that can handle multipart data properly. For now, just always match
                 return new AnythingPattern();

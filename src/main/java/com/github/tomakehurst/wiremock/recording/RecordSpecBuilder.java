@@ -102,11 +102,11 @@ public class RecordSpecBuilder {
     }
 
     public RecordSpecBuilder chooseBodyMatchTypeAutomatically() {
-        return chooseBodyMatchTypeAutomatically(null, null, null);
+        return chooseBodyMatchTypeAutomatically(null, null, null, null);
     }
 
-    public RecordSpecBuilder chooseBodyMatchTypeAutomatically(Boolean ignoreArrayOrder, Boolean ignoreExtraElements, Boolean caseInsensitive) {
-        this.requestBodyPatternFactory = new RequestBodyAutomaticPatternFactory(ignoreArrayOrder, ignoreExtraElements, caseInsensitive);
+    public RecordSpecBuilder chooseBodyMatchTypeAutomatically(Boolean ignoreArrayOrder, Boolean ignoreExtraElements, Boolean caseInsensitive, List<StringValuePattern> formParameters) {
+        this.requestBodyPatternFactory = new RequestBodyAutomaticPatternFactory(ignoreArrayOrder, ignoreExtraElements, caseInsensitive, formParameters);
         return this;
     }
 
@@ -133,8 +133,8 @@ public class RecordSpecBuilder {
         return this;
     }
 
-    public RecordSpecBuilder matchRequestBodyWithEqualToUrlEncodedForm() {
-        this.requestBodyPatternFactory = new RequestBodyEqualToUrlEncodedFormPatternFactory();
+    public RecordSpecBuilder matchRequestBodyWithEqualToUrlEncodedForm(List<StringValuePattern> formParameters) {
+        this.requestBodyPatternFactory = new RequestBodyEqualToUrlEncodedFormPatternFactory(formParameters);
         return this;
     }
 
