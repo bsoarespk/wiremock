@@ -237,7 +237,7 @@ public class WireMock {
     }
 
     public static StringValuePattern equalToUrlEncodedForm(String value) {
-        return new EqualToUrlEncodedFormPattern(value);
+        return new EqualToUrlEncodedFormPattern(value, null);
     }
 
     public static StringValuePattern matchingAll(List<StringValuePattern> patterns) {
